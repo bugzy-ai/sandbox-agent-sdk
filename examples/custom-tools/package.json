@@ -1,0 +1,18 @@
+{
+  "name": "custom-tools-example",
+  "version": "1.0.0",
+  "description": "Example of using custom tools with Claude",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "claude-agent-sdk-vercel-sandbox": "file:../..",
+    "@supabase/supabase-js": "^2.39.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "@types/node": "^22.0.0"
+  }
+}
