@@ -7,7 +7,7 @@
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "claude-agent-sdk-vercel-sandbox": "file:../..",
+    "@bugzy-ai/sandbox-agent-sdk": "file:../..",
     "@supabase/supabase-js": "^2.39.0",
     "zod": "^3.24.0"
   },

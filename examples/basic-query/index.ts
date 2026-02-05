@@ -9,7 +9,7 @@
  * Run with: npx ts-node index.ts
  */
 
-import { query, isAssistantMessage, extractText } from 'claude-agent-sdk-vercel-sandbox';
+import { query, isAssistantMessage, extractText } from '@bugzy-ai/sandbox-agent-sdk';
 
 async function main() {
   console.log('=== Basic Query Example (New API) ===\n');

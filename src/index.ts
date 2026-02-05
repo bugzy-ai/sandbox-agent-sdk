@@ -6,7 +6,7 @@
  *
  * @example Basic Query (Official SDK API)
  * ```typescript
- * import { query, extractText, isAssistantMessage } from 'claude-agent-sdk-vercel-sandbox';
+ * import { query, extractText, isAssistantMessage } from '@bugzy-ai/sandbox-agent-sdk';
  *
  * const q = query({ prompt: "What is the capital of France?" });
  *
@@ -26,7 +26,7 @@
  *
  * @example With Tools
  * ```typescript
- * import { query, tool } from 'claude-agent-sdk-vercel-sandbox';
+ * import { query, tool } from '@bugzy-ai/sandbox-agent-sdk';
  * import { z } from 'zod';
  *
  * const calculator = tool(
@@ -48,7 +48,7 @@
  *
  * @example Multi-turn with Client
  * ```typescript
- * import { VercelClaudeClient } from 'claude-agent-sdk-vercel-sandbox';
+ * import { VercelClaudeClient } from '@bugzy-ai/sandbox-agent-sdk';
  *
  * const client = new VercelClaudeClient();
  * await client.connect();

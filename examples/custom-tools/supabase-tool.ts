@@ -6,7 +6,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { tool, textResult, jsonResult, errorResult } from 'claude-agent-sdk-vercel-sandbox';
+import { tool, textResult, jsonResult, errorResult } from '@bugzy-ai/sandbox-agent-sdk';
 import { z } from 'zod';
 
 // Initialize Supabase client

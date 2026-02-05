@@ -57,7 +57,7 @@ export interface McpServer {
  *
  * @example
  * ```typescript
- * import { createSdkMcpServer, tool } from 'claude-agent-sdk-vercel-sandbox';
+ * import { createSdkMcpServer, tool } from '@bugzy-ai/sandbox-agent-sdk';
  * import { z } from 'zod';
  *
  * const queryDb = tool(
@@ -175,7 +175,7 @@ export function createSdkMcpServer(config: McpServerConfig): McpServer {
  * @example
  * ```typescript
  * // tools-server.ts
- * import { runToolServer, tool } from 'claude-agent-sdk-vercel-sandbox';
+ * import { runToolServer, tool } from '@bugzy-ai/sandbox-agent-sdk';
  * import { z } from 'zod';
  *
  * runToolServer({

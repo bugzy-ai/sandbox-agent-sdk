@@ -9,7 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "claude-agent-sdk-vercel-sandbox": "file:../..",
+    "@bugzy-ai/sandbox-agent-sdk": "file:../..",
     "next": "^14.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"

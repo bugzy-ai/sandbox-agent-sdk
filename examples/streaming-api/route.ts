@@ -16,7 +16,7 @@ import {
   isResultMessage,
   isErrorMessage,
   extractText,
-} from 'claude-agent-sdk-vercel-sandbox';
+} from '@bugzy-ai/sandbox-agent-sdk';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300; // 5 minutes

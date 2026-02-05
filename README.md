@@ -22,13 +22,13 @@ This SDK runs the Claude CLI inside Vercel Sandbox microVMs, enabling Claude Age
 ## Installation
 
 ```bash
-npm install claude-agent-sdk-vercel-sandbox
+npm install @bugzy-ai/sandbox-agent-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { query } from 'claude-agent-sdk-vercel-sandbox';
+import { query } from '@bugzy-ai/sandbox-agent-sdk';
 
 const result = await query({
   prompt: 'What is the capital of France?',
@@ -51,7 +51,7 @@ console.log(result.text); // "The capital of France is Paris."
 ### Simple Query
 
 ```typescript
-import { query } from 'claude-agent-sdk-vercel-sandbox';
+import { query } from '@bugzy-ai/sandbox-agent-sdk';
 
 // Get just the text response
 const q = query({ prompt: 'Hello!' });
@@ -62,7 +62,7 @@ console.log(text);
 ### Streaming
 
 ```typescript
-import { query, isAssistantMessage, extractText } from 'claude-agent-sdk-vercel-sandbox';
+import { query, isAssistantMessage, extractText } from '@bugzy-ai/sandbox-agent-sdk';
 
 for await (const message of query({ prompt: 'Tell me a story' })) {
   if (isAssistantMessage(message)) {
@@ -74,7 +74,7 @@ for await (const message of query({ prompt: 'Tell me a story' })) {
 ### Multi-turn Conversations
 
 ```typescript
-import { VercelClaudeClient } from 'claude-agent-sdk-vercel-sandbox';
+import { VercelClaudeClient } from '@bugzy-ai/sandbox-agent-sdk';
 
 const client = new VercelClaudeClient({
   systemPrompt: 'You are a helpful assistant.',
@@ -92,7 +92,7 @@ await client.disconnect();
 ### Custom Tools
 
 ```typescript
-import { tool, createSdkMcpServer } from 'claude-agent-sdk-vercel-sandbox';
+import { tool, createSdkMcpServer } from '@bugzy-ai/sandbox-agent-sdk';
 import { z } from 'zod';
 
 const weatherTool = tool(
@@ -114,7 +114,7 @@ const server = createSdkMcpServer({
 ### Snapshots (Faster Cold Starts)
 
 ```typescript
-import { createSnapshot, query } from 'claude-agent-sdk-vercel-sandbox';
+import { createSnapshot, query } from '@bugzy-ai/sandbox-agent-sdk';
 
 // Create once (during deployment)
 const snapshotId = await createSnapshot({ name: 'claude-ready' });
@@ -131,7 +131,7 @@ const result = await query({
 ```typescript
 // app/api/chat/route.ts
 import { NextRequest } from 'next/server';
-import { query, isAssistantMessage, extractText } from 'claude-agent-sdk-vercel-sandbox';
+import { query, isAssistantMessage, extractText } from '@bugzy-ai/sandbox-agent-sdk';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;

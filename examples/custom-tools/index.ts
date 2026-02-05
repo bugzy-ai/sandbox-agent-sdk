@@ -14,7 +14,7 @@ import {
   isAssistantMessage,
   isToolUseMessage,
   extractText,
-} from 'claude-agent-sdk-vercel-sandbox';
+} from '@bugzy-ai/sandbox-agent-sdk';
 import { supabaseTools } from './supabase-tool.js';
 
 async function main() {

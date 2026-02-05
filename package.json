@@ -1,5 +1,5 @@
 {
-  "name": "claude-agent-sdk-vercel-sandbox",
+  "name": "@bugzy-ai/sandbox-agent-sdk",
   "version": "0.1.0",
   "description": "Claude Agent SDK with Vercel Sandbox backing for serverless environments",
   "type": "module",
@@ -56,5 +56,14 @@
     "ai",
     "agent"
   ],
-  "license": "MIT"
+  "author": "Bugzy AI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bugzy-ai/sandbox-agent-sdk.git"
+  },
+  "homepage": "https://github.com/bugzy-ai/sandbox-agent-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/bugzy-ai/sandbox-agent-sdk/issues"
+  }
 }
