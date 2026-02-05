@@ -588,11 +588,17 @@ class QueryImpl implements Query {
    */
   private buildToolDescriptions(tools: ToolDefinition[]): string {
     const toolDocs = tools.map((t) => {
-      const schemaDesc = Object.entries(t.schema.shape)
+      // Access shape - compatible with Zod v3 and v4
+      const shape = t.schema.shape ||
+        (t.schema as unknown as { _zod?: { def?: { shape?: Record<string, unknown> } } })._zod?.def?.shape || {};
+
+      const schemaDesc = Object.entries(shape)
         .map(([key, value]) => {
-          const zodType = value as { description?: string; _def?: { typeName?: string } };
+          // Get type name - compatible with Zod v3 and v4
+          const zodType = value as { description?: string; _def?: { typeName?: string }; _zod?: { def?: { type?: string } } };
           const desc = zodType.description || '';
-          const type = zodType._def?.typeName?.replace('Zod', '').toLowerCase() || 'any';
+          const typeName = zodType._zod?.def?.type || zodType._def?.typeName || 'any';
+          const type = typeName.replace('Zod', '').toLowerCase();
           return `    - ${key} (${type}): ${desc}`;
         })
         .join('\n');

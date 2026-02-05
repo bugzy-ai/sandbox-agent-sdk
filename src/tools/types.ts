@@ -98,13 +98,15 @@ export interface ToolJsonSchema {
 
 /**
  * Convert a Zod schema to JSON Schema format
+ * Compatible with both Zod v3 and v4
  */
 export function zodToJsonSchema(schema: ToolSchema): {
   type: 'object';
   properties: Record<string, unknown>;
   required?: string[];
 } {
-  const shape = schema.shape;
+  // Access shape - works in both v3 and v4
+  const shape = schema.shape || (schema as unknown as { _zod?: { def?: { shape?: Record<string, z.ZodTypeAny> } } })._zod?.def?.shape || {};
   const properties: Record<string, unknown> = {};
   const required: string[] = [];
 
@@ -112,8 +114,14 @@ export function zodToJsonSchema(schema: ToolSchema): {
     const zodType = value as z.ZodTypeAny;
     properties[key] = zodTypeToJsonSchema(zodType);
 
-    // Check if required (not optional/nullable)
-    if (!zodType.isOptional() && !zodType.isNullable()) {
+    // Check if required (not optional/nullable) - compatible with v3 and v4
+    const typeName = getZodTypeName(zodType);
+    const isOpt = typeName === 'ZodOptional' || typeName === 'optional' ||
+                  typeName === 'ZodNullable' || typeName === 'nullable' ||
+                  (typeof zodType.isOptional === 'function' && zodType.isOptional()) ||
+                  (typeof zodType.isNullable === 'function' && zodType.isNullable());
+
+    if (!isOpt) {
       required.push(key);
     }
   }
@@ -126,7 +134,17 @@ export function zodToJsonSchema(schema: ToolSchema): {
 }
 
 /**
+ * Get the Zod type name from a ZodType (compatible with Zod v3 and v4)
+ */
+function getZodTypeName(zodType: z.ZodTypeAny): string {
+  // Zod v4 uses _zod.def.type, v3 uses _def.typeName
+  const def = (zodType as unknown as { _zod?: { def?: { type?: string } }; _def?: { typeName?: string } });
+  return def._zod?.def?.type || def._def?.typeName || 'unknown';
+}
+
+/**
  * Convert a Zod type to JSON Schema
+ * Compatible with both Zod v3 and v4
  */
 function zodTypeToJsonSchema(zodType: z.ZodTypeAny): Record<string, unknown> {
   const description = zodType.description;
@@ -136,52 +154,68 @@ function zodTypeToJsonSchema(zodType: z.ZodTypeAny): Record<string, unknown> {
     baseSchema['description'] = description;
   }
 
+  const typeName = getZodTypeName(zodType);
+
   // Handle optional/nullable wrappers
-  if (zodType instanceof z.ZodOptional || zodType instanceof z.ZodNullable) {
-    return zodTypeToJsonSchema(zodType.unwrap());
+  if (typeName === 'ZodOptional' || typeName === 'optional' ||
+      typeName === 'ZodNullable' || typeName === 'nullable') {
+    // Access inner type - works for both v3 and v4
+    const inner = (zodType as unknown as { unwrap?: () => z.ZodTypeAny; _def?: { innerType?: z.ZodTypeAny } });
+    const innerType = inner.unwrap?.() || inner._def?.innerType;
+    if (innerType) {
+      return zodTypeToJsonSchema(innerType);
+    }
   }
 
   // Handle default wrappers
-  if (zodType instanceof z.ZodDefault) {
-    const inner = zodTypeToJsonSchema(zodType._def.innerType);
-    return { ...inner, default: zodType._def.defaultValue() };
+  if (typeName === 'ZodDefault' || typeName === 'default') {
+    const def = (zodType as unknown as { _def?: { innerType?: z.ZodTypeAny; defaultValue?: () => unknown } });
+    if (def._def?.innerType) {
+      const inner = zodTypeToJsonSchema(def._def.innerType);
+      return { ...inner, default: def._def.defaultValue?.() };
+    }
   }
 
   // Handle primitive types
-  if (zodType instanceof z.ZodString) {
+  if (typeName === 'ZodString' || typeName === 'string') {
     return { ...baseSchema, type: 'string' };
   }
 
-  if (zodType instanceof z.ZodNumber) {
+  if (typeName === 'ZodNumber' || typeName === 'number' || typeName === 'int' || typeName === 'float') {
     return { ...baseSchema, type: 'number' };
   }
 
-  if (zodType instanceof z.ZodBoolean) {
+  if (typeName === 'ZodBoolean' || typeName === 'boolean') {
     return { ...baseSchema, type: 'boolean' };
   }
 
-  if (zodType instanceof z.ZodArray) {
+  if (typeName === 'ZodArray' || typeName === 'array') {
+    const arr = zodType as unknown as { element?: z.ZodTypeAny; _def?: { type?: z.ZodTypeAny } };
+    const elementType = arr.element || arr._def?.type;
     return {
       ...baseSchema,
       type: 'array',
-      items: zodTypeToJsonSchema(zodType.element),
+      items: elementType ? zodTypeToJsonSchema(elementType) : {},
     };
   }
 
-  if (zodType instanceof z.ZodObject) {
-    return { ...baseSchema, ...zodToJsonSchema(zodType) };
+  if (typeName === 'ZodObject' || typeName === 'object') {
+    return { ...baseSchema, ...zodToJsonSchema(zodType as ToolSchema) };
   }
 
-  if (zodType instanceof z.ZodEnum) {
+  if (typeName === 'ZodEnum' || typeName === 'enum') {
+    const enumType = zodType as unknown as { options?: string[]; _def?: { values?: string[] } };
+    const options = enumType.options || enumType._def?.values || [];
     return {
       ...baseSchema,
       type: 'string',
-      enum: zodType.options,
+      enum: options,
     };
   }
 
-  if (zodType instanceof z.ZodLiteral) {
-    const value = zodType.value;
+  if (typeName === 'ZodLiteral' || typeName === 'literal') {
+    const lit = zodType as unknown as { value?: unknown; _def?: { value?: unknown } };
+    const value = lit.value ?? lit._def?.value;
     return {
       ...baseSchema,
       const: value,
@@ -189,14 +223,27 @@ function zodTypeToJsonSchema(zodType: z.ZodTypeAny): Record<string, unknown> {
     };
   }
 
-  if (zodType instanceof z.ZodUnion) {
+  if (typeName === 'ZodUnion' || typeName === 'union') {
+    const union = zodType as unknown as { options?: z.ZodTypeAny[]; _def?: { options?: z.ZodTypeAny[] } };
+    const options = union.options || union._def?.options || [];
     return {
       ...baseSchema,
-      oneOf: zodType.options.map(zodTypeToJsonSchema),
+      oneOf: options.map(zodTypeToJsonSchema),
     };
   }
 
-  if (zodType instanceof z.ZodAny) {
+  if (typeName === 'ZodRecord' || typeName === 'record') {
+    // Handle z.record() - map to object with additionalProperties
+    const rec = zodType as unknown as { _def?: { valueType?: z.ZodTypeAny } };
+    const valueType = rec._def?.valueType;
+    return {
+      ...baseSchema,
+      type: 'object',
+      additionalProperties: valueType ? zodTypeToJsonSchema(valueType) : true,
+    };
+  }
+
+  if (typeName === 'ZodAny' || typeName === 'any' || typeName === 'ZodUnknown' || typeName === 'unknown') {
     return baseSchema;
   }
 

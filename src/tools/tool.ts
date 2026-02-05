@@ -72,8 +72,11 @@ export async function executeTool(
   const parseResult = tool.schema.safeParse(input);
 
   if (!parseResult.success) {
-    const errors = parseResult.error.errors
-      .map((e) => `${e.path.join('.')}: ${e.message}`)
+    // Compatible with Zod v3 (.errors) and v4 (.issues)
+    const issues = (parseResult.error as { issues?: Array<{ path: (string | number)[]; message: string }>; errors?: Array<{ path: (string | number)[]; message: string }> }).issues ||
+                   (parseResult.error as { errors?: Array<{ path: (string | number)[]; message: string }> }).errors || [];
+    const errors = issues
+      .map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`)
       .join(', ');
 
     return {
