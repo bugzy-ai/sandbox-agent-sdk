@@ -1,6 +1,6 @@
 {
   "name": "@bugzy-ai/sandbox-agent-sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Claude Agent SDK with Vercel Sandbox backing for serverless environments",
   "type": "module",
   "main": "./dist/index.js",
